@@ -2,6 +2,7 @@
 
 namespace Jtrw\DAO;
 
+use Doctrine\DBAL\Connection;
 use Jtrw\DAO\Exceptions\DatabaseException;
 use Jtrw\DAO\ValueObject\ArrayLiteral;
 use Jtrw\DAO\ValueObject\StringLiteral;
@@ -9,64 +10,100 @@ use Jtrw\DAO\ValueObject\ValueObjectInterface;
 
 class ObjectDbalAdapter extends ObjectAdapter
 {
+    protected Connection $db;
+    public function __construct(Connection $db)
+    {
+        parent::__construct($db);
+    }
+    
     
     public function quote(string $obj, int $type = 0): string
     {
-        // TODO: Implement quote() method.
+        $this->db->quote($obj);
     }
     
     public function getRow(string $sql): ValueObjectInterface
     {
-        // TODO: Implement getRow() method.
+        $result = $this->db->fetchAssociative($sql);
+        
+        if (!$result) {
+            $result = [];
+        }
+        
+        return new ArrayLiteral($result);
     }
     
     public function getAll(string $sql): ValueObjectInterface
     {
-        // TODO: Implement getAll() method.
+        $result = $this->db->fetchAllAssociative($sql);
+        
+        if (!$result) {
+            $result = [];
+        }
+        
+        return new ArrayLiteral($result);
     }
     
     public function getCol(string $sql): ValueObjectInterface
     {
-        // TODO: Implement getCol() method.
+        $result = $this->db->fetchFirstColumn($sql);
+        
+        if (!$result) {
+            $result = [];
+        }
+        
+        return new ArrayLiteral($result);
     }
     
     public function getOne(string $sql): ValueObjectInterface
     {
-        // TODO: Implement getOne() method.
+        $result = $this->db->fetchOne($sql);
+        
+        if (!$result) {
+            $result = [];
+        }
+        
+        return new StringLiteral($result);
     }
     
     public function getAssoc(string $sql): ValueObjectInterface
     {
-        // TODO: Implement getAssoc() method.
+        $result = $this->db->fetchAssociative($sql);
+        
+        if (!$result) {
+            $result = [];
+        }
+        
+        return new ArrayLiteral($result);
     }
     
-    public function begin(bool $isolationLevel = false)
+    public function begin(bool $isolationLevel = false): void
     {
-        // TODO: Implement begin() method.
+        $this->db->beginTransaction();
     }
     
-    public function commit()
+    public function commit(): void
     {
-        // TODO: Implement commit() method.
+        $this->db->commit();
     }
     
     public function rollback()
     {
-        // TODO: Implement rollback() method.
+        $this->db->rollBack();
     }
     
     public function query(string $sql): int
     {
-        // TODO: Implement query() method.
+        return $this->db->executeQuery($sql)->rowCount();
     }
     
     public function getInsertID(): int
     {
-        // TODO: Implement getInsertID() method.
+        return $this->db->lastInsertId();
     }
     
     public function getDatabaseType(): string
     {
-        // TODO: Implement getDatabaseType() method.
+        return $this->db->getDatabasePlatform()->getName();
     }
 }
