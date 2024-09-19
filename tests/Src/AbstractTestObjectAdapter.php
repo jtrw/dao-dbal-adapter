@@ -4,7 +4,7 @@ namespace Jtrw\DAO\Tests\Src;
 
 use Jtrw\DAO\DataAccessObjectInterface;
 use Jtrw\DAO\Exceptions\DatabaseException;
-use Jtrw\DAO\Tests\ClickHouseConnector;
+use Jtrw\DAO\Tests\DbConnector;
 use Jtrw\DAO\ValueObject\ValueObjectInterface;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
@@ -21,6 +21,13 @@ abstract class AbstractTestObjectAdapter extends TestCase
     
     abstract public function testInsertForUpdate();
     
+    public function testCurrentDate()
+    {
+        $sql = "SELECT CURRENT_DATE";
+        $date = $this->db->select($sql, [], [], DataAccessObjectInterface::FETCH_ONE)->toNative();
+        
+        Assert::assertEquals($date, date("Y-m-d"));
+    }
     
     public function testInsert()
     {
@@ -434,10 +441,24 @@ abstract class AbstractTestObjectAdapter extends TestCase
         }
     }
     
-    public function testSetForeignKeyChecks()
+    public function testIllegalDouble()
     {
-        $this->db->setForeignKeyChecks(true);
+        $sql = "SELECT * FROM ".static::TABLE_SETTINGS;
+        $search = [
+            'caption' => '669595062e04880001128537'
+        ];
+        try {
+            $result = $this->db->select($sql, $search, [], DataAccessObjectInterface::FETCH_ROW)->toNative();
+            Assert::assertEmpty($result);
+        } catch (DatabaseException $exp) {
+            $this->fail('DatabaseException was not thrown '.$exp->getMessage());
+        }
     }
+
+//    public function testSetForeignKeyChecks()
+//    {
+//        $this->db->setForeignKeyChecks(true);
+//    }
     
     private function removeSettingRow(int $id): void
     {

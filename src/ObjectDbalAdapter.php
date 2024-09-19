@@ -9,6 +9,7 @@ use Jtrw\DAO\ObjectAdapter;
 use Jtrw\DAO\ValueObject\ArrayLiteral;
 use Jtrw\DAO\ValueObject\StringLiteral;
 use Jtrw\DAO\ValueObject\ValueObjectInterface;
+use Doctrine\DBAL\Exception;
 
 class ObjectDbalAdapter extends ObjectAdapter
 {
@@ -41,7 +42,11 @@ class ObjectDbalAdapter extends ObjectAdapter
     
     public function getRow(string $sql): ValueObjectInterface
     {
-        $result = $this->db->fetchAssociative($sql);
+        try {
+            $result = $this->db->fetchAssociative($sql);
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
         
         if (!$result) {
             $result = [];
@@ -52,7 +57,11 @@ class ObjectDbalAdapter extends ObjectAdapter
     
     public function getAll(string $sql): ValueObjectInterface
     {
-        $result = $this->db->fetchAllAssociative($sql);
+        try {
+            $result = $this->db->fetchAllAssociative($sql);
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
         
         if (!$result) {
             $result = [];
@@ -63,7 +72,11 @@ class ObjectDbalAdapter extends ObjectAdapter
     
     public function getCol(string $sql): ValueObjectInterface
     {
-        $result = $this->db->fetchFirstColumn($sql);
+        try {
+            $result = $this->db->fetchFirstColumn($sql);
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
         
         if (!$result) {
             $result = [];
@@ -74,7 +87,11 @@ class ObjectDbalAdapter extends ObjectAdapter
     
     public function getOne(string $sql): ValueObjectInterface
     {
-        $result = $this->db->fetchOne($sql) ?? '';
+        try {
+            $result = $this->db->fetchOne($sql) ?? '';
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
         
         return new StringLiteral($result);
     }
@@ -82,13 +99,17 @@ class ObjectDbalAdapter extends ObjectAdapter
     public function getAssoc(string $sql): ValueObjectInterface
     {
         $result = [];
-        $res = $this->db->fetchAllAssociative($sql);
-        foreach ($res as $key => $row) {
-            $val = array_shift($row);
-            if (count($row) === 1) {
-                $row = array_shift($row);
+        try {
+            $res = $this->db->fetchAllAssociative($sql);
+            foreach ($res as $key => $row) {
+                $val = array_shift($row);
+                if (count($row) === 1) {
+                    $row = array_shift($row);
+                }
+                $result[$val] = $row;
             }
-            $result[$val] = $row;
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
         }
         
         return new ArrayLiteral($result);
@@ -96,31 +117,59 @@ class ObjectDbalAdapter extends ObjectAdapter
     
     public function begin(bool $isolationLevel = false): void
     {
-        $this->db->beginTransaction();
+        try {
+            $this->db->beginTransaction();
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
     
     public function commit(): void
     {
-        $this->db->commit();
+        try {
+            $this->db->commit();
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
     
+    /**
+     * @throws DatabaseException
+     * @return mixed
+     */
     public function rollback()
     {
-        $this->db->rollBack();
+        try {
+            $this->db->rollBack();
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
     
     public function query(string $sql): int
     {
-        return $this->db->executeQuery($sql)->rowCount();
+        try {
+            return $this->db->executeQuery($sql)->rowCount();
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
     
     public function getInsertID(): int
     {
-        return $this->db->lastInsertId();
+        try {
+            return $this->db->lastInsertId();
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
     
     public function getDatabaseType(): string
     {
-        return $this->db->getNativeConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        try {
+            return $this->db->getNativeConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        } catch (Exception $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
 }
