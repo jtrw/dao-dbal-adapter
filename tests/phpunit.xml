@@ -39,14 +39,15 @@
         <env name="XDEBUG_MODE" value="coverage" />
 
         <server name="SERVER_ADDR" value="127.0.0.1"/>
-        <env name="CLICKHOUSE_HOST" value="clickhouse"/>
-        <env name="CLICKHOUSE_PORT" value="8123"/>
-        <env name="CLICKHOUSE_USER" value="default"/>
-        <env name="CLICKHOUSE_PASSWORD" value="password123"/>
+
+        <const name="DB_DSN" value="mysql:dbname=dao;port=3306;host=dao_mariadb"/>
+        <const name="DB_NAME" value="dao"/>
+        <const name="DB_USER" value="dao_user"/>
+        <const name="DB_PASSWD" value="rootpw"/>
     </php>
 
     <testsuites>
-        <testsuite name="ClickHouse">
+        <testsuite name="Mysql">
             <directory>Src</directory>
         </testsuite>
     </testsuites>
