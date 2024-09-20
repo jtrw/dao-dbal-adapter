@@ -34,7 +34,6 @@ class ObjectDbalAdapter extends ObjectAdapter
         return new $className($this->db->getNativeConnection());
     }
     
-    
     public function quote(string $obj, int $type = 0): string
     {
         return $this->db->quote($obj);
@@ -45,7 +44,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             $result = $this->db->fetchAssociative($sql);
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $sql);
         }
         
         if (!$result) {
@@ -60,7 +59,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             $result = $this->db->fetchAllAssociative($sql);
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $sql);
         }
         
         if (!$result) {
@@ -75,7 +74,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             $result = $this->db->fetchFirstColumn($sql);
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $sql);
         }
         
         if (!$result) {
@@ -90,7 +89,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             $result = $this->db->fetchOne($sql) ?? '';
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $sql);
         }
         
         return new StringLiteral($result);
@@ -109,7 +108,7 @@ class ObjectDbalAdapter extends ObjectAdapter
                 $result[$val] = $row;
             }
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $sql);
         }
         
         return new ArrayLiteral($result);
@@ -120,7 +119,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             $this->db->beginTransaction();
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode());
         }
     }
     
@@ -129,7 +128,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             $this->db->commit();
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode());
         }
     }
     
@@ -142,7 +141,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             $this->db->rollBack();
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode());
         }
     }
     
@@ -151,7 +150,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             return $this->db->executeQuery($sql)->rowCount();
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode(), $sql);
         }
     }
     
@@ -160,7 +159,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             return $this->db->lastInsertId();
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode());
         }
     }
     
@@ -169,7 +168,7 @@ class ObjectDbalAdapter extends ObjectAdapter
         try {
             return $this->db->getNativeConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
         } catch (Exception $e) {
-            throw new DatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage(), $e->getCode());
         }
     }
 }

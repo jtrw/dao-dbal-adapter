@@ -426,15 +426,15 @@ abstract class AbstractTestObjectAdapter extends TestCase
         
         $sqlSelect = "SELECT * FROM ".$tableName;
         
-        $result = $this->db->select($sqlSelect, [], [], DataAccessObjectInterface::FETCH_ALL)->toNative();
+        $result = $this->db->select($sqlSelect)->toNative();
         Assert::assertEmpty($result);
-        
+
         $this->db->deleteTable($tableName);
     
         try {
-            $this->db->select($sqlSelect, [], [], DataAccessObjectInterface::FETCH_ALL)->toNative();
+            $res = $this->db->select($sqlSelect)->toNative();
             $this->fail('DatabaseException was not thrown');
-        } catch (DatabaseException $exp) {
+        } catch (\Exception $exp) {
             $msg = sprintf(" Table 'dao.%s' doesn't", $tableName);
             Assert::assertEquals($exp->getQuery(), $sqlSelect);
             Assert::assertStringContainsString($msg, $exp->getMessage(), "Message Not Found");
