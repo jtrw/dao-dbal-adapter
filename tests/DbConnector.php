@@ -2,8 +2,10 @@
 
 namespace Jtrw\DAO\Tests;
 
+use Doctrine\DBAL\DriverManager;
 use Jtrw\DAO\DataAccessObject;
 use Jtrw\DAO\DataAccessObjectInterface;
+use Jtrw\DAO\ObjectDbalAdapter;
 use RuntimeException;
 use PDO;
 
@@ -28,7 +30,6 @@ class DbConnector
     public static function init()
     {
         static::$db[static::DRIVER_MYSQL] = self::initMysql();
-        static::$db[static::DRIVER_PGSQL] = self::iniPgSql();
     }
     
     private static function initMysql(): DataAccessObjectInterface
@@ -44,22 +45,17 @@ class DbConnector
     
         static::$sourcePDO[static::DRIVER_MYSQL] = $db;
         
-        return DataAccessObject::factory($db);
-    }
-    
-    private static function iniPgSql(): DataAccessObjectInterface
-    {
-        $dbName = getenv('MYSQL_DATABASE');
-        $dsn = "pgsql:dbname=dao;port=5432;host=dao_postgres";
-        $db = new \PDO(
-            $dsn,
-            'postgres_user',
-            'postgres_pass'
-        );
-        
-        static::$sourcePDO[static::DRIVER_PGSQL] = $db;
-        
-        return DataAccessObject::factory($db);
+        $params = [
+            'driver' => 'pdo_mysql',
+            'dbname' => $dbName,
+            'user' => getenv('MYSQL_USER'),
+            'password' => getenv('MYSQL_PASSWORD'),
+            'host' => 'dao_mariadb',
+            'port' => 3306
+        ];
+        $dbal = DriverManager::getConnection($params);
+
+        return new ObjectDbalAdapter($dbal);
     }
     
     public static function getInstance(string $driver = self::DRIVER_MYSQL): DataAccessObjectInterface
