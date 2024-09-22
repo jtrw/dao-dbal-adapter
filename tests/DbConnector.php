@@ -30,6 +30,7 @@ class DbConnector
     public static function init()
     {
         static::$db[static::DRIVER_MYSQL] = self::initMysql();
+        //static::$db[static::DRIVER_PGSQL] = self::iniPgSql();
     }
     
     private static function initMysql(): DataAccessObjectInterface
@@ -52,6 +53,21 @@ class DbConnector
             'password' => getenv('MYSQL_PASSWORD'),
             'host' => 'dao_mariadb',
             'port' => 3306
+        ];
+        $dbal = DriverManager::getConnection($params);
+
+        return new ObjectDbalAdapter($dbal);
+    }
+    
+    private static function iniPgSql()
+    {
+        $params = [
+            'driver' => 'pdo_pgsql',
+            'dbname' => 'dao',
+            'user' => 'postgres_user',
+            'password' => 'postgres_pass',
+            'host' => 'dao_postgres',
+            'port' => 5432
         ];
         $dbal = DriverManager::getConnection($params);
 
