@@ -7,7 +7,7 @@ use Jtrw\DAO\Tests\DbConnector;
 use Jtrw\DAO\ValueObject\ValueObjectInterface;
 use PHPUnit\Framework\Assert;
 
-class PostgreSqlObject extends \Jtrw\DAO\Tests\Src\AbstractTestObjectAdapter
+class PostgreSqlObjectTest extends \Jtrw\DAO\Tests\Src\AbstractTestObjectAdapter
 {
     public function setUp(): void
     {
