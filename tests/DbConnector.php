@@ -30,7 +30,7 @@ class DbConnector
     public static function init()
     {
         static::$db[static::DRIVER_MYSQL] = self::initMysql();
-        //static::$db[static::DRIVER_PGSQL] = self::iniPgSql();
+        static::$db[static::DRIVER_PGSQL] = self::iniPgSql();
     }
     
     private static function initMysql(): DataAccessObjectInterface

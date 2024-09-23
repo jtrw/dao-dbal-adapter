@@ -4,7 +4,7 @@ services:
   dao_php:
     container_name: ${APP_COMPOSE_PROJECT_NAME}_php_fpm
     build:
-      context: ./.docker/php${PHP_VER}-dev-fpm
+      context: ./.docker/php${PHP_VER}-dev-cli
       args:
         PHP_VER: ${PHP_VER}
     networks:
