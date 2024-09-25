@@ -118,6 +118,7 @@ class ObjectDbalAdapter extends ObjectAdapter
     {
         try {
             $this->db->beginTransaction();
+            self::$_isStartTransaction = true;
         } catch (Exception $e) {
             throw new DatabaseException($e->getMessage(), $e->getCode());
         }
@@ -127,6 +128,7 @@ class ObjectDbalAdapter extends ObjectAdapter
     {
         try {
             $this->db->commit();
+            self::$_isStartTransaction = false;
         } catch (Exception $e) {
             throw new DatabaseException($e->getMessage(), $e->getCode());
         }
@@ -140,6 +142,7 @@ class ObjectDbalAdapter extends ObjectAdapter
     {
         try {
             $this->db->rollBack();
+            self::$_isStartTransaction = false;
         } catch (Exception $e) {
             throw new DatabaseException($e->getMessage(), $e->getCode());
         }
